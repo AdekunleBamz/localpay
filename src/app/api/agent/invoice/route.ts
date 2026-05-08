@@ -29,7 +29,13 @@ export async function POST(request: Request) {
       { baseUrl: url.origin },
     );
 
-    return NextResponse.json(result);
+    return NextResponse.json({
+      ...result,
+      draft: {
+        ...result.draft,
+        amountUnits: result.draft.amountUnits.toString(),
+      },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to prepare payment request";
 

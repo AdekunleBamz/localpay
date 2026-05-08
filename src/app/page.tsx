@@ -41,8 +41,16 @@ import {
   type LokaTokenSymbol,
 } from "@bamzzstudio/loka-sdk";
 
+type AgentDraftPayload = Omit<LokaInvoiceDraft, "amountUnits"> & {
+  amountUnits: string;
+};
+
 type AgentResponse =
-  | ReturnType<typeof preparePaymentRequest>
+  | {
+      ok: true;
+      agent: ReturnType<typeof preparePaymentRequest>["agent"];
+      draft: AgentDraftPayload;
+    }
   | {
       ok: false;
       error: string;
@@ -179,7 +187,10 @@ export default function Home() {
         throw new Error(payload.error);
       }
 
-      setDraft(payload.draft);
+      setDraft({
+        ...payload.draft,
+        amountUnits: BigInt(payload.draft.amountUnits),
+      });
       setStatus("Request ready");
     } catch (prepareError) {
       setError(readError(prepareError, "Invoice agent failed"));
