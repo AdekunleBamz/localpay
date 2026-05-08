@@ -33,4 +33,4 @@ Deployed Celo Mainnet ledger:
 
 ## MiniPay
 
-Loka defaults to USDm for MiniPay checkout. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).
+Loka auto-connects inside MiniPay, checks USDm/USDC/USDT balances, and selects a stablecoin that can cover the request. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).

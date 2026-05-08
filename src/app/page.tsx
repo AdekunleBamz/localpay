@@ -17,11 +17,13 @@ import {
   ShieldCheck,
   Wallet,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   createPublicClient,
   createWalletClient,
   custom,
+  erc20Abi,
+  formatUnits,
   http,
   parseUnits,
   type Address,
@@ -31,6 +33,7 @@ import { celo, celoSepolia } from "viem/chains";
 import {
   LOKA_CHAIN,
   LOKA_PAY_LEDGER_ABI,
+  LOKA_STABLECOINS,
   approveLokaTokenPayment,
   assertAddress,
   payLokaNative,
@@ -61,6 +64,15 @@ type EthereumProvider = {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
 };
 
+type StableTokenSymbol = Exclude<LokaTokenSymbol, "CELO">;
+type WalletMode = "unknown" | "browser" | "minipay";
+type StableBalance = {
+  symbol: StableTokenSymbol;
+  balance: bigint;
+  display: string;
+  canPay: boolean;
+};
+
 const configuredChainId = Number(process.env.NEXT_PUBLIC_CELO_CHAIN_ID ?? "42220");
 const selectedChain = configuredChainId === LOKA_CHAIN.sepolia.id ? celoSepolia : celo;
 const chainMeta = configuredChainId === LOKA_CHAIN.sepolia.id ? LOKA_CHAIN.sepolia : LOKA_CHAIN.mainnet;
@@ -68,6 +80,16 @@ const ledgerContract = process.env.NEXT_PUBLIC_LOKA_LEDGER_ADDRESS || "";
 const stableToken = process.env.NEXT_PUBLIC_LOKA_STABLE_TOKEN || LOKA_DEFAULT_PAYMENT_TOKEN.address;
 const stableSymbol = process.env.NEXT_PUBLIC_LOKA_STABLE_SYMBOL || LOKA_DEFAULT_PAYMENT_TOKEN.symbol;
 const stableDecimals = Number(process.env.NEXT_PUBLIC_LOKA_STABLE_DECIMALS || LOKA_DEFAULT_PAYMENT_TOKEN.decimals);
+const STABLE_TOKEN_SYMBOLS = ["USDm", "USDC", "USDT"] as const satisfies readonly StableTokenSymbol[];
+const STABLE_TOKENS: Record<StableTokenSymbol, { symbol: StableTokenSymbol; address: Address; decimals: number }> = {
+  USDm: {
+    symbol: "USDm",
+    address: stableToken as Address,
+    decimals: stableDecimals,
+  },
+  USDC: LOKA_STABLECOINS.USDC,
+  USDT: LOKA_STABLECOINS.USDT,
+};
 
 const EXAMPLES = [
   { label: "Food stall", note: "Jollof bowl and drink", amount: "2.40", customer: "Walk-in buyer" },
@@ -77,6 +99,7 @@ const EXAMPLES = [
 
 export default function Home() {
   const [account, setAccount] = useState<Address | null>(null);
+  const [walletMode, setWalletMode] = useState<WalletMode>("unknown");
   const [merchant, setMerchant] = useState("");
   const [customer, setCustomer] = useState("Walk-in buyer");
   const [amount, setAmount] = useState("2.40");
@@ -91,6 +114,9 @@ export default function Home() {
   const [txHash, setTxHash] = useState<Hex | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [isCheckingBalances, setIsCheckingBalances] = useState(false);
+  const [stableBalances, setStableBalances] = useState<StableBalance[]>([]);
+  const autoConnectStartedRef = useRef(false);
 
   const shortAccount = useMemo(() => {
     if (!account) return "Not connected";
@@ -100,6 +126,131 @@ export default function Home() {
   const contractReady = ledgerContract.length > 0;
   const explorerTx = txHash ? `${chainMeta.explorerUrl}/tx/${txHash}` : "";
   const effectiveMerchant = draft?.merchant ?? (merchant ? assertMaybeAddress(merchant) : undefined);
+  const isMiniPaySession = walletMode === "minipay";
+  const walletSignal = isMiniPaySession ? "MiniPay" : account ? "Web wallet" : "Connect";
+  const railsSignal = isMiniPaySession ? "Stable auto-select" : "Stables + CELO";
+  const tokenOptions = isMiniPaySession ? STABLE_TOKEN_SYMBOLS : [...STABLE_TOKEN_SYMBOLS, "CELO" as const];
+
+  const refreshStableBalances = useCallback(
+    async (owner: Address, announce: boolean) => {
+      setIsCheckingBalances(true);
+
+      try {
+        const publicClient = createPublicClient({
+          chain: selectedChain,
+          transport: http(chainMeta.rpcUrl),
+        });
+        const balances = await Promise.all(
+          STABLE_TOKEN_SYMBOLS.map(async (symbol) => {
+            const token = STABLE_TOKENS[symbol];
+            const required = requiredAmountForToken(amount, token.decimals);
+            const balance = await publicClient.readContract({
+              address: token.address,
+              abi: erc20Abi,
+              functionName: "balanceOf",
+              args: [owner],
+            });
+
+            return {
+              symbol,
+              balance,
+              display: formatTokenBalance(balance, token.decimals),
+              canPay: required ? balance >= required : balance > BigInt(0),
+            } satisfies StableBalance;
+          }),
+        );
+
+        setStableBalances(balances);
+
+        const selected = chooseStableTokenForAmount(balances, tokenSymbol, amount);
+        if (selected && selected !== tokenSymbol) {
+          setTokenSymbol(selected);
+          setDraft(null);
+          setStatus(`${selected} selected`);
+        } else if (announce) {
+          setStatus("MiniPay connected");
+        }
+      } catch {
+        setStableBalances([]);
+        if (announce) setStatus("MiniPay connected");
+      } finally {
+        setIsCheckingBalances(false);
+      }
+    },
+    [amount, tokenSymbol],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    let attempts = 0;
+    let timer: number | undefined;
+
+    function detectWalletProvider() {
+      const provider = getOptionalProvider();
+
+      if (!provider) {
+        if (attempts < 12) {
+          attempts += 1;
+          timer = window.setTimeout(detectWalletProvider, 150);
+        }
+        return;
+      }
+
+      const detectedProvider = provider;
+      const miniPayDetected = isMiniPay(provider);
+
+      queueMicrotask(() => {
+        if (!cancelled) {
+          setWalletMode(miniPayDetected ? "minipay" : "browser");
+        }
+      });
+
+      if (!miniPayDetected || autoConnectStartedRef.current) return;
+
+      autoConnectStartedRef.current = true;
+
+      async function autoConnectMiniPay() {
+        setError("");
+        setStatus("Connecting MiniPay");
+
+        try {
+          const accounts = (await detectedProvider.request({ method: "eth_requestAccounts" })) as Address[];
+          const connected = assertAddress(accounts[0], "wallet");
+
+          if (cancelled) return;
+
+          setWalletMode("minipay");
+          setAccount(connected);
+          setMerchant((current) => current || connected);
+          await refreshStableBalances(connected, true);
+        } catch (connectError) {
+          if (cancelled) return;
+
+          setError(readError(connectError, "MiniPay connection failed"));
+          setStatus("Open MiniPay wallet");
+        }
+      }
+
+      void autoConnectMiniPay();
+    }
+
+    detectWalletProvider();
+
+    return () => {
+      cancelled = true;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [refreshStableBalances]);
+
+  useEffect(() => {
+    if (!account || walletMode !== "minipay") return;
+
+    const timer = window.setTimeout(() => {
+      void refreshStableBalances(account, false);
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [account, amount, refreshStableBalances, walletMode]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -115,7 +266,7 @@ export default function Home() {
 
     queueMicrotask(() => {
       if (urlAmount) setAmount(urlAmount);
-      if (urlToken === "USDm" || urlToken === "CELO") setTokenSymbol(urlToken);
+      if (isSupportedTokenSymbol(urlToken)) setTokenSymbol(urlToken);
       if (urlNote) setNote(urlNote);
       if (urlCustomer) setCustomer(urlCustomer);
       if (urlCountry) setCountry(urlCountry);
@@ -153,9 +304,15 @@ export default function Home() {
 
       await ensureCeloNetwork(provider);
       const connected = assertAddress(accounts[0], "wallet");
+      const miniPaySession = isMiniPay(provider);
+      setWalletMode(miniPaySession ? "minipay" : "browser");
       setAccount(connected);
       setMerchant((current) => current || connected);
-      setStatus(isMiniPay(provider) ? "MiniPay connected" : "Wallet connected");
+      if (miniPaySession) {
+        await refreshStableBalances(connected, true);
+      } else {
+        setStatus("Wallet connected");
+      }
     } catch (connectError) {
       setError(readError(connectError, "Wallet connection failed"));
       setStatus("Ready");
@@ -222,6 +379,8 @@ export default function Home() {
 
       await ensureCeloNetwork(provider);
       const connectedAccount = assertAddress(accounts[0], "wallet");
+      const miniPaySession = isMiniPay(provider);
+      setWalletMode(miniPaySession ? "minipay" : "browser");
       setAccount(connectedAccount);
       setIsPaying(true);
 
@@ -235,6 +394,10 @@ export default function Home() {
       });
       const contractAddress = assertAddress(ledgerContract, "Loka ledger");
       let hash: Hex;
+
+      if (miniPaySession && draft.tokenSymbol === "CELO") {
+        throw new Error("MiniPay checkout uses USDm, USDC, or USDT. Select a stablecoin and prepare again.");
+      }
 
       if (draft.tokenSymbol === "CELO") {
         setStatus("Confirm CELO payment");
@@ -257,10 +420,11 @@ export default function Home() {
         });
         setStatus(`Sent with ${estimatedGas.toString()} gas estimate`);
       } else {
-        const tokenAddress = assertAddress(stableToken, "stable token");
-        const amountUnits = parseUnits(draft.amount, stableDecimals);
+        const paymentToken = stableTokenForSymbol(draft.tokenSymbol);
+        const tokenAddress = paymentToken.address;
+        const amountUnits = parseUnits(draft.amount, paymentToken.decimals);
 
-        setStatus(`Approve ${stableSymbol}`);
+        setStatus(`Approve ${paymentToken.symbol}`);
         const approveHash = await approveLokaTokenPayment({
           walletClient,
           tokenAddress,
@@ -271,7 +435,7 @@ export default function Home() {
         setStatus("Waiting for approval");
         await publicClient.waitForTransactionReceipt({ hash: approveHash });
 
-        setStatus(`Confirm ${stableSymbol} payment`);
+        setStatus(`Confirm ${paymentToken.symbol} payment`);
         hash = await payLokaToken({
           walletClient,
           contractAddress,
@@ -379,9 +543,32 @@ export default function Home() {
                   }}
                   className="input"
                 >
-                  <option value="USDm">{stableSymbol}</option>
-                  <option value="CELO">CELO</option>
+                  {tokenOptions.map((symbol) => (
+                    <option key={symbol} value={symbol}>
+                      {tokenLabelForSymbol(symbol)}
+                    </option>
+                  ))}
                 </select>
+                {isMiniPaySession && account ? (
+                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-black text-[#17201b]/55">
+                    {isCheckingBalances ? (
+                      <span className="rounded-md bg-white px-2 py-1">Checking balances</span>
+                    ) : stableBalances.length > 0 ? (
+                      stableBalances.map((item) => (
+                        <span
+                          key={item.symbol}
+                          className={`rounded-md px-2 py-1 ${
+                            item.symbol === tokenSymbol ? "bg-[#2bd37f]/20 text-[#12643d]" : "bg-white"
+                          }`}
+                        >
+                          {item.symbol}: {item.display}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="rounded-md bg-white px-2 py-1">No stable balance found</span>
+                    )}
+                  </div>
+                ) : null}
               </Field>
               <Field label="Country or market">
                 <input
@@ -483,7 +670,7 @@ export default function Home() {
               <DataRow label="Merchant" value={effectiveMerchant ? `${effectiveMerchant.slice(0, 8)}...${effectiveMerchant.slice(-6)}` : "Waiting"} />
               <DataRow
                 label="Amount"
-                value={draft ? `${draft.amount} ${draft.tokenSymbol === "USDm" ? stableSymbol : draft.tokenSymbol}` : "Waiting"}
+                value={draft ? `${draft.amount} ${tokenLabelForSymbol(draft.tokenSymbol)}` : "Waiting"}
               />
               <DataRow label="Invoice" value={draft ? `${draft.invoiceId.slice(0, 10)}...${draft.invoiceId.slice(-8)}` : "Waiting"} />
               <DataRow
@@ -502,8 +689,8 @@ export default function Home() {
 
         <section className="grid gap-3 sm:grid-cols-4">
           <Signal icon={<ShieldCheck size={18} />} label="Agent" value="Invoice checks" />
-          <Signal icon={<Wallet size={18} />} label="Wallet" value="MiniPay ready" />
-          <Signal icon={<Banknote size={18} />} label="Rails" value={`${stableSymbol} + CELO`} />
+          <Signal icon={<Wallet size={18} />} label="Wallet" value={walletSignal} />
+          <Signal icon={<Banknote size={18} />} label="Rails" value={railsSignal} />
           <Signal icon={<Clipboard size={18} />} label="Receipts" value="Onchain ledger" />
         </section>
       </div>
@@ -582,7 +769,7 @@ function Signal({ icon, label, value }: { icon: ReactNode; label: string; value:
 }
 
 function getProvider(): EthereumProvider {
-  const provider = (window as typeof window & { ethereum?: EthereumProvider }).ethereum;
+  const provider = getOptionalProvider();
 
   if (!provider) {
     throw new Error("Open Loka in MiniPay or a Celo-compatible wallet browser");
@@ -591,8 +778,80 @@ function getProvider(): EthereumProvider {
   return provider;
 }
 
+function getOptionalProvider(): EthereumProvider | null {
+  if (typeof window === "undefined") return null;
+
+  return (window as typeof window & { ethereum?: EthereumProvider }).ethereum ?? null;
+}
+
 function isMiniPay(provider: EthereumProvider): boolean {
   return Boolean(provider.isMiniPay || /MiniPay/i.test(window.navigator.userAgent));
+}
+
+function isSupportedTokenSymbol(value: string | null): value is LokaTokenSymbol {
+  return value === "CELO" || value === "USDm" || value === "USDC" || value === "USDT";
+}
+
+function isStableTokenSymbol(value: LokaTokenSymbol): value is StableTokenSymbol {
+  return value !== "CELO";
+}
+
+function stableTokenForSymbol(symbol: StableTokenSymbol) {
+  return STABLE_TOKENS[symbol];
+}
+
+function tokenLabelForSymbol(symbol: LokaTokenSymbol) {
+  if (symbol === "CELO") return "CELO";
+  if (symbol === "USDm") return stableSymbol;
+
+  return symbol;
+}
+
+function requiredAmountForToken(rawAmount: string, decimals: number) {
+  try {
+    return parseUnits(rawAmount, decimals);
+  } catch {
+    return null;
+  }
+}
+
+function formatTokenBalance(balance: bigint, decimals: number) {
+  const [whole, fraction = ""] = formatUnits(balance, decimals).split(".");
+  const trimmed = fraction.slice(0, 4).replace(/0+$/, "");
+  return trimmed ? `${whole}.${trimmed}` : whole;
+}
+
+function chooseStableTokenForAmount(
+  balances: StableBalance[],
+  currentToken: LokaTokenSymbol,
+  rawAmount: string,
+): StableTokenSymbol | null {
+  const currentBalance = isStableTokenSymbol(currentToken)
+    ? balances.find((item) => item.symbol === currentToken)
+    : undefined;
+
+  if (currentBalance?.canPay) {
+    return currentBalance.symbol;
+  }
+
+  const canPay = STABLE_TOKEN_SYMBOLS.map((symbol) => balances.find((item) => item.symbol === symbol)).find(
+    (item): item is StableBalance => Boolean(item?.canPay),
+  );
+
+  if (canPay) {
+    return canPay.symbol;
+  }
+
+  const amountLooksValid = requiredAmountForToken(rawAmount, 18) !== null;
+  const hasBalance = STABLE_TOKEN_SYMBOLS.map((symbol) => balances.find((item) => item.symbol === symbol)).find(
+    (item): item is StableBalance => Boolean(item && item.balance > BigInt(0)),
+  );
+
+  if (!amountLooksValid && hasBalance) {
+    return hasBalance.symbol;
+  }
+
+  return null;
 }
 
 async function ensureCeloNetwork(provider: EthereumProvider) {

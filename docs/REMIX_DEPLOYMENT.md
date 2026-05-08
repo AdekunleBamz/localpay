@@ -30,6 +30,8 @@ NEXT_PUBLIC_LOKA_STABLE_SYMBOL=USDm
 NEXT_PUBLIC_LOKA_STABLE_DECIMALS=18
 ```
 
+The app also includes Celo Mainnet USDC and USDT constants through the SDK for MiniPay balance-based token selection.
+
 ## Verification
 
 Verify the contract on Celoscan with the same constructor values used in Remix.
