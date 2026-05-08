@@ -285,8 +285,8 @@ export default function Home() {
       errorCorrectionLevel: "M",
       margin: 1,
       color: {
-        dark: "#17201b",
-        light: "#f8f1dd",
+        dark: "#10231d",
+        light: "#ffffff",
       },
       width: 360,
     })
@@ -466,232 +466,262 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#f7f3e8] px-4 py-4 text-[#17201b] sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
-        <header className="flex items-center justify-between gap-3 border-b border-[#17201b]/10 pb-4">
+    <main className="min-h-screen overflow-x-hidden bg-[#eef3f0] px-3 py-3 text-[#10231d] sm:px-5">
+      <div className="mx-auto grid min-h-[calc(100vh-1.5rem)] w-full max-w-7xl grid-rows-[auto_1fr] gap-3">
+        <header className="flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-[#cfdbd4] bg-white px-3 py-3 shadow-sm">
           <div className="flex min-w-0 items-center gap-3">
-            <Image src="/loka-logo.svg" alt="Loka" width={54} height={54} priority />
+            <Image src="/loka-logo.svg" alt="Loka" width={44} height={44} priority className="shrink-0" />
             <div className="min-w-0">
-              <h1 className="truncate text-2xl font-black sm:text-3xl">Loka</h1>
-              <p className="truncate text-sm font-semibold text-[#17201b]/60">Merchant payments on Celo</p>
+              <h1 className="truncate text-xl font-black sm:text-2xl">Loka</h1>
+              <p className="truncate text-xs font-bold uppercase text-[#607168]">Merchant till for Celo stable payments</p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={connectWallet}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-[#17201b]/15 bg-[#17201b] text-white shadow-sm transition hover:bg-black"
-            aria-label="Connect wallet"
-            title={shortAccount}
-          >
-            <Wallet size={20} />
-          </button>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
+            <StatusPill icon={<Radio size={14} />} label={status} />
+            <StatusPill icon={<MapPin size={14} />} label={chainMeta.name} />
+            <button
+              type="button"
+              onClick={connectWallet}
+              className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-md bg-[#10231d] px-3 text-sm font-black text-white shadow-sm transition hover:bg-[#1a3a31]"
+              title={shortAccount}
+            >
+              <Wallet size={17} />
+              <span className="min-w-0 truncate">{shortAccount}</span>
+            </button>
+          </div>
         </header>
 
-        <section className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)]">
-          <div className="min-w-0 rounded-lg border border-[#17201b]/10 bg-[#fffaf0] p-4 shadow-sm sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <StatusPill icon={<Radio size={14} />} label={status} />
-              <StatusPill icon={<MapPin size={14} />} label={chainMeta.name} />
+        <section className="grid min-w-0 gap-3 lg:grid-cols-[17rem_minmax(0,1fr)_23rem]">
+          <aside className="order-2 min-w-0 rounded-lg bg-[#10231d] p-3 text-white shadow-sm lg:order-1">
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+              <div>
+                <p className="text-xs font-black uppercase text-white/45">Till status</p>
+                <p className="mt-1 text-lg font-black">{walletSignal}</p>
+              </div>
+              <BadgeCheck className={contractReady ? "text-[#2bd37f]" : "text-[#f4b740]"} size={24} />
+            </div>
+
+            <div className="mt-3 grid gap-2">
+              <SideMetric icon={<ShieldCheck size={16} />} label="Ledger" value={contractReady ? "Ready" : "Set env"} />
+              <SideMetric icon={<Banknote size={16} />} label="Rails" value={railsSignal} />
+              <SideMetric icon={<Clipboard size={16} />} label="Mode" value={isMiniPaySession ? "Auto stable" : "Manual"} />
+            </div>
+
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-black uppercase text-white/45">Stable balances</p>
+              <div className="grid gap-2">
+                {isMiniPaySession && account ? (
+                  isCheckingBalances ? (
+                    <BalanceLine label="Wallet" value="Checking" active />
+                  ) : stableBalances.length > 0 ? (
+                    stableBalances.map((item) => (
+                      <BalanceLine key={item.symbol} label={item.symbol} value={item.display} active={item.symbol === tokenSymbol} />
+                    ))
+                  ) : (
+                    <BalanceLine label="Wallet" value="No stables" />
+                  )
+                ) : (
+                  <BalanceLine label="MiniPay" value="Connect" />
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <p className="mb-2 text-xs font-black uppercase text-white/45">Quick tickets</p>
+              <div className="grid gap-2">
+                {EXAMPLES.map((example) => (
+                  <button
+                    key={example.label}
+                    type="button"
+                    onClick={() => {
+                      setNote(example.note);
+                      setAmount(example.amount);
+                      setCustomer(example.customer);
+                      setDraft(null);
+                      setStatus("Ready");
+                    }}
+                    className="rounded-md border border-white/10 bg-white/[0.06] px-3 py-2 text-left text-xs font-bold leading-5 text-white/70 transition hover:border-[#2bd37f]/70 hover:bg-white/[0.1] hover:text-white"
+                  >
+                    <span className="block text-sm font-black text-white">{example.label}</span>
+                    {example.amount} {tokenLabelForSymbol(tokenSymbol)} - {example.note}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <section className="order-1 min-w-0 rounded-lg border border-[#cfdbd4] bg-white shadow-sm lg:order-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dce5df] px-4 py-3">
+              <div>
+                <p className="text-xs font-black uppercase text-[#607168]">Request builder</p>
+                <h2 className="mt-1 text-2xl font-black">New payment</h2>
+              </div>
               <StatusPill icon={<BadgeCheck size={14} />} label={contractReady ? "Ledger set" : "Deploy pending"} />
             </div>
 
-            {error ? (
-              <p className="mb-4 max-w-full overflow-hidden break-words rounded-lg border border-[#d94a38]/25 bg-[#fff0ea] px-3 py-2 text-sm font-bold text-[#9d2d20] [overflow-wrap:anywhere]">
-                {error}
-              </p>
-            ) : null}
+            <div className="p-4">
+              {error ? (
+                <p className="mb-4 max-w-full overflow-hidden break-words rounded-md border border-[#d94a38]/25 bg-[#fff0ea] px-3 py-2 text-sm font-bold text-[#9d2d20] [overflow-wrap:anywhere]">
+                  {error}
+                </p>
+              ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Merchant wallet">
-                <input
-                  value={merchant}
-                  onChange={(event) => {
-                    setMerchant(event.target.value);
-                    setDraft(null);
-                  }}
-                  placeholder="Connect wallet or paste address"
-                  className="input"
-                />
-              </Field>
-              <Field label="Customer">
-                <input
-                  value={customer}
-                  onChange={(event) => {
-                    setCustomer(event.target.value);
-                    setDraft(null);
-                  }}
-                  className="input"
-                />
-              </Field>
-              <Field label="Amount">
-                <input
-                  value={amount}
-                  inputMode="decimal"
-                  onChange={(event) => {
-                    setAmount(event.target.value);
-                    setDraft(null);
-                  }}
-                  className="input"
-                />
-              </Field>
-              <Field label="Token">
-                <select
-                  value={tokenSymbol}
-                  onChange={(event) => {
-                    setTokenSymbol(event.target.value as LokaTokenSymbol);
-                    setDraft(null);
-                  }}
-                  className="input"
-                >
-                  {tokenOptions.map((symbol) => (
-                    <option key={symbol} value={symbol}>
-                      {tokenLabelForSymbol(symbol)}
-                    </option>
-                  ))}
-                </select>
-                {isMiniPaySession && account ? (
-                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-black text-[#17201b]/55">
-                    {isCheckingBalances ? (
-                      <span className="rounded-md bg-white px-2 py-1">Checking balances</span>
-                    ) : stableBalances.length > 0 ? (
-                      stableBalances.map((item) => (
-                        <span
-                          key={item.symbol}
-                          className={`rounded-md px-2 py-1 ${
-                            item.symbol === tokenSymbol ? "bg-[#2bd37f]/20 text-[#12643d]" : "bg-white"
-                          }`}
-                        >
-                          {item.symbol}: {item.display}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="rounded-md bg-white px-2 py-1">No stable balance found</span>
-                    )}
-                  </div>
-                ) : null}
-              </Field>
-              <Field label="Country or market">
-                <input
-                  value={country}
-                  onChange={(event) => {
-                    setCountry(event.target.value);
-                    setDraft(null);
-                  }}
-                  className="input"
-                />
-              </Field>
-              <Field label="Due">
-                <input
-                  value={dueLabel}
-                  onChange={(event) => {
-                    setDueLabel(event.target.value);
-                    setDraft(null);
-                  }}
-                  className="input"
-                />
-              </Field>
-            </div>
-
-            <Field label="Memo">
-              <textarea
-                value={note}
-                onChange={(event) => {
-                  setNote(event.target.value);
-                  setDraft(null);
-                }}
-                className="input min-h-24 resize-none leading-6"
-                maxLength={180}
-              />
-            </Field>
-
-            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              {EXAMPLES.map((example) => (
-                <button
-                  key={example.label}
-                  type="button"
-                  onClick={() => {
-                    setNote(example.note);
-                    setAmount(example.amount);
-                    setCustomer(example.customer);
-                    setDraft(null);
-                    setStatus("Ready");
-                  }}
-                  className="min-h-16 rounded-lg border border-[#17201b]/10 bg-white px-3 py-2 text-left text-xs font-bold leading-5 text-[#17201b]/70 transition hover:border-[#2bd37f] hover:text-[#17201b]"
-                >
-                  <span className="block text-[#17201b]">{example.label}</span>
-                  {example.note}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => void prepareInvoice()}
-                disabled={isPreparing || amount.trim().length === 0 || note.trim().length === 0}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#17201b]/15 bg-white px-4 text-sm font-black transition hover:border-[#f4b740] disabled:cursor-not-allowed disabled:opacity-55"
-              >
-                {isPreparing ? <LoaderCircle className="animate-spin" size={18} /> : <ReceiptText size={18} />}
-                Prepare
-              </button>
-              <button
-                type="button"
-                onClick={() => void payInvoice()}
-                disabled={isPaying || isPreparing || !draft}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#17201b] px-4 text-sm font-black text-white shadow-sm transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-55"
-              >
-                {isPaying ? <LoaderCircle className="animate-spin" size={18} /> : <Send size={18} />}
-                Pay
-              </button>
-            </div>
-          </div>
-
-          <aside className="min-w-0 rounded-lg border border-[#17201b]/10 bg-[#17201b] p-4 text-white shadow-sm sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-xs font-black uppercase text-white/50">Checkout</p>
-                <h2 className="truncate text-xl font-black">{draft?.title ?? "No request prepared"}</h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Merchant wallet">
+                  <input
+                    value={merchant}
+                    onChange={(event) => {
+                      setMerchant(event.target.value);
+                      setDraft(null);
+                    }}
+                    placeholder="Connect wallet or paste address"
+                    className="input"
+                  />
+                </Field>
+                <Field label="Customer">
+                  <input
+                    value={customer}
+                    onChange={(event) => {
+                      setCustomer(event.target.value);
+                      setDraft(null);
+                    }}
+                    className="input"
+                  />
+                </Field>
+                <Field label="Amount">
+                  <input
+                    value={amount}
+                    inputMode="decimal"
+                    onChange={(event) => {
+                      setAmount(event.target.value);
+                      setDraft(null);
+                    }}
+                    className="input"
+                  />
+                </Field>
+                <Field label="Payment rail">
+                  <select
+                    value={tokenSymbol}
+                    onChange={(event) => {
+                      setTokenSymbol(event.target.value as LokaTokenSymbol);
+                      setDraft(null);
+                    }}
+                    className="input"
+                  >
+                    {tokenOptions.map((symbol) => (
+                      <option key={symbol} value={symbol}>
+                        {tokenLabelForSymbol(symbol)}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Market">
+                  <input
+                    value={country}
+                    onChange={(event) => {
+                      setCountry(event.target.value);
+                      setDraft(null);
+                    }}
+                    className="input"
+                  />
+                </Field>
+                <Field label="Due">
+                  <input
+                    value={dueLabel}
+                    onChange={(event) => {
+                      setDueLabel(event.target.value);
+                      setDraft(null);
+                    }}
+                    className="input"
+                  />
+                </Field>
               </div>
-              <QrCode className="shrink-0 text-[#f4b740]" size={28} />
-            </div>
 
-            <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-lg border border-white/10 bg-[#f8f1dd] p-5">
-              {qrDataUrl ? (
-                <Image src={qrDataUrl} alt="Payment QR" width={360} height={360} unoptimized className="h-full w-full object-contain" />
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-center text-[#17201b]">
-                  <Image src="/loka-logo.svg" alt="" width={128} height={128} />
-                  <p className="max-w-xs text-lg font-black leading-7">Prepared requests appear here.</p>
+              {isMiniPaySession && account ? (
+                <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-black text-[#607168]">
+                  {isCheckingBalances ? (
+                    <span className="rounded-md border border-[#dce5df] bg-[#f8fbf8] px-2 py-1">Checking balances</span>
+                  ) : stableBalances.length > 0 ? (
+                    stableBalances.map((item) => (
+                      <span
+                        key={item.symbol}
+                        className={`rounded-md border px-2 py-1 ${
+                          item.symbol === tokenSymbol
+                            ? "border-[#2bd37f]/40 bg-[#e9fff2] text-[#12643d]"
+                            : "border-[#dce5df] bg-[#f8fbf8]"
+                        }`}
+                      >
+                        {item.symbol}: {item.display}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="rounded-md border border-[#dce5df] bg-[#f8fbf8] px-2 py-1">No stable balance found</span>
+                  )}
                 </div>
-              )}
+              ) : null}
+
+              <Field label="Memo">
+                <textarea
+                  value={note}
+                  onChange={(event) => {
+                    setNote(event.target.value);
+                    setDraft(null);
+                  }}
+                  className="input min-h-24 resize-none leading-6"
+                  maxLength={180}
+                />
+              </Field>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1.2fr]">
+                <button
+                  type="button"
+                  onClick={() => void prepareInvoice()}
+                  disabled={isPreparing || amount.trim().length === 0 || note.trim().length === 0}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-[#c9d7d0] bg-[#f8fbf8] px-4 text-sm font-black text-[#10231d] transition hover:border-[#2b7bd3] disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  {isPreparing ? <LoaderCircle className="animate-spin" size={18} /> : <ReceiptText size={18} />}
+                  Prepare request
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void payInvoice()}
+                  disabled={isPaying || isPreparing || !draft}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[#2bd37f] px-4 text-sm font-black text-[#082118] shadow-sm transition hover:bg-[#24be71] disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  {isPaying ? <LoaderCircle className="animate-spin" size={18} /> : <Send size={18} />}
+                  Collect payment
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <aside className="order-3 min-w-0 rounded-lg border border-[#cfdbd4] bg-white shadow-sm">
+            <div className="border-b border-[#dce5df] px-4 py-3">
+              <p className="text-xs font-black uppercase text-[#607168]">Checkout packet</p>
+              <h2 className="mt-1 truncate text-xl font-black">{draft?.title ?? "No request prepared"}</h2>
             </div>
 
-            <div className="mt-4 grid gap-2 text-sm">
-              <DataRow label="Merchant" value={effectiveMerchant ? `${effectiveMerchant.slice(0, 8)}...${effectiveMerchant.slice(-6)}` : "Waiting"} />
-              <DataRow
-                label="Amount"
-                value={draft ? `${draft.amount} ${tokenLabelForSymbol(draft.tokenSymbol)}` : "Waiting"}
-              />
-              <DataRow label="Invoice" value={draft ? `${draft.invoiceId.slice(0, 10)}...${draft.invoiceId.slice(-8)}` : "Waiting"} />
-              <DataRow
-                label="Link"
-                value={draft ? "Copy checkout" : "Waiting"}
-                action={draft ? copyPaymentLink : undefined}
-              />
-              <DataRow
-                label="Receipt"
-                value={txHash ? `${txHash.slice(0, 10)}...${txHash.slice(-8)}` : "No transaction yet"}
-                href={explorerTx}
-              />
+            <div className="p-4">
+              <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-md border border-[#dce5df] bg-white p-5">
+                {qrDataUrl ? (
+                  <Image src={qrDataUrl} alt="Payment QR" width={360} height={360} unoptimized className="h-full w-full object-contain" />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center gap-4 text-center text-[#10231d]">
+                    <QrCode className="text-[#2b7bd3]" size={58} />
+                    <p className="max-w-xs text-sm font-black leading-6 text-[#607168]">Prepare a request to generate a checkout QR.</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 grid gap-2 text-sm">
+                <DataRow label="Merchant" value={effectiveMerchant ? `${effectiveMerchant.slice(0, 8)}...${effectiveMerchant.slice(-6)}` : "Waiting"} />
+                <DataRow label="Amount" value={draft ? `${draft.amount} ${tokenLabelForSymbol(draft.tokenSymbol)}` : "Waiting"} />
+                <DataRow label="Invoice" value={draft ? `${draft.invoiceId.slice(0, 10)}...${draft.invoiceId.slice(-8)}` : "Waiting"} />
+                <DataRow label="Link" value={draft ? "Copy checkout" : "Waiting"} action={draft ? copyPaymentLink : undefined} />
+                <DataRow label="Receipt" value={txHash ? `${txHash.slice(0, 10)}...${txHash.slice(-8)}` : "No transaction"} href={explorerTx} />
+              </div>
             </div>
           </aside>
-        </section>
-
-        <section className="grid gap-3 sm:grid-cols-4">
-          <Signal icon={<ShieldCheck size={18} />} label="Agent" value="Invoice checks" />
-          <Signal icon={<Wallet size={18} />} label="Wallet" value={walletSignal} />
-          <Signal icon={<Banknote size={18} />} label="Rails" value={railsSignal} />
-          <Signal icon={<Clipboard size={18} />} label="Receipts" value="Onchain ledger" />
         </section>
       </div>
     </main>
@@ -700,8 +730,8 @@ export default function Home() {
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="mt-3 block">
-      <span className="mb-2 block text-xs font-black uppercase text-[#17201b]/55">{label}</span>
+    <label className="block min-w-0 rounded-md border border-[#dce5df] bg-[#fbfdfa] p-3">
+      <span className="mb-2 block text-xs font-black uppercase text-[#607168]">{label}</span>
       {children}
     </label>
   );
@@ -709,7 +739,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function StatusPill({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <span className="inline-flex min-h-8 items-center gap-2 rounded-md border border-[#17201b]/10 bg-white px-3 text-xs font-black text-[#17201b]/70">
+    <span className="inline-flex min-h-8 items-center gap-2 rounded-md border border-[#cfdcd5] bg-[#f8fbf8] px-3 text-xs font-black text-[#52645b]">
       {icon}
       {label}
     </span>
@@ -728,14 +758,14 @@ function DataRow({
   action?: () => void;
 }) {
   return (
-    <div className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-3">
-      <span className="shrink-0 text-xs font-black uppercase text-white/50">{label}</span>
+    <div className="grid min-h-11 grid-cols-[5rem_minmax(0,1fr)] items-center gap-3 border-b border-[#dce5df] py-2 last:border-b-0">
+      <span className="text-xs font-black uppercase text-[#607168]">{label}</span>
       {href ? (
         <a
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-w-0 items-center gap-2 truncate text-right font-bold text-[#f4b740]"
+          className="inline-flex min-w-0 items-center justify-end gap-2 truncate text-right font-bold text-[#2b7bd3]"
         >
           <span className="truncate">{value}</span>
           <ExternalLink size={14} />
@@ -744,26 +774,41 @@ function DataRow({
         <button
           type="button"
           onClick={action}
-          className="inline-flex min-w-0 items-center gap-2 truncate text-right font-bold text-[#f4b740]"
+          className="inline-flex min-w-0 items-center justify-end gap-2 truncate text-right font-bold text-[#2b7bd3]"
         >
           <span className="truncate">{value}</span>
           <Copy size={14} />
         </button>
       ) : (
-        <span className="min-w-0 truncate text-right font-bold text-white/80">{value}</span>
+        <span className="min-w-0 truncate text-right font-bold text-[#10231d]">{value}</span>
       )}
     </div>
   );
 }
 
-function Signal({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function SideMetric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-[#17201b]/10 bg-white/60 px-4 py-3">
-      <div className="flex items-center gap-2 text-[#17201b]/45">
+    <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-2 rounded-md border border-white/10 bg-white/[0.06] px-3 py-2">
+      <div className="text-[#2bd37f]">
         {icon}
-        <p className="text-xs font-black uppercase">{label}</p>
       </div>
-      <p className="mt-1 truncate text-lg font-black">{value}</p>
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase text-white/45">{label}</p>
+        <p className="truncate text-sm font-black text-white">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function BalanceLine({ label, value, active = false }: { label: string; value: string; active?: boolean }) {
+  return (
+    <div
+      className={`flex min-h-10 items-center justify-between gap-3 rounded-md border px-3 text-sm font-black ${
+        active ? "border-[#2bd37f]/70 bg-[#2bd37f]/15 text-white" : "border-white/10 bg-white/[0.05] text-white/72"
+      }`}
+    >
+      <span>{label}</span>
+      <span className={active ? "text-[#8ff3b9]" : "text-white/50"}>{value}</span>
     </div>
   );
 }

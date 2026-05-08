@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f3e8;
-  --foreground: #17201b;
+  --background: #eef3f0;
+  --foreground: #10231d;
 }
 
 @theme inline {
@@ -28,21 +28,24 @@ select {
 @layer components {
   .input {
     width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid color-mix(in srgb, #17201b 15%, transparent);
-    background: white;
-    padding: 0.75rem 1rem;
+    min-height: 2.45rem;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    background: #ffffff;
+    padding: 0.6rem 0.75rem;
     font-size: 0.95rem;
-    font-weight: 700;
-    color: #17201b;
+    font-weight: 800;
+    color: #10231d;
     outline: none;
     transition:
+      background 160ms ease,
       border-color 160ms ease,
       box-shadow 160ms ease;
   }
 
   .input:focus {
     border-color: #2bd37f;
-    box-shadow: 0 0 0 4px color-mix(in srgb, #2bd37f 18%, transparent);
+    background: #fbfffc;
+    box-shadow: 0 0 0 3px color-mix(in srgb, #2bd37f 18%, transparent);
   }
 }
