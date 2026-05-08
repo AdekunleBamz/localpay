@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local LokaPay test wallet harness
+/.loka-test/
+/.env.loka-test.local
+
 # vercel
 .vercel
 
