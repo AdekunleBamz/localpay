@@ -1,0 +1,35 @@
+# Remix Deployment
+
+Deploy `contracts/LokaPayLedger.sol` manually from Remix.
+
+## Constructor
+
+```solidity
+constructor(
+  address initialOwner_,
+  address payable treasury_,
+  uint256 feeBps_
+)
+```
+
+Recommended values:
+
+- `initialOwner_`: your owner wallet.
+- `treasury_`: your fee wallet, or `0x0000000000000000000000000000000000000000` to use `initialOwner_`.
+- `feeBps_`: `0` for no fee, `30` for 0.30%, or `50` for 0.50%.
+
+## App Env
+
+After deploying, set:
+
+```bash
+NEXT_PUBLIC_LOKA_LEDGER_ADDRESS=<deployed-ledger-address>
+NEXT_PUBLIC_CELO_CHAIN_ID=42220
+NEXT_PUBLIC_LOKA_STABLE_TOKEN=0x765DE816845861e75A25fCA122bb6898B8B1282a
+NEXT_PUBLIC_LOKA_STABLE_SYMBOL=USDm
+NEXT_PUBLIC_LOKA_STABLE_DECIMALS=18
+```
+
+## Verification
+
+Verify the contract on Celoscan with the same constructor values used in Remix.
