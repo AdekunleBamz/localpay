@@ -24,3 +24,7 @@ NEXT_PUBLIC_LOKA_STABLE_DECIMALS=18
 ## Contract
 
 See [docs/REMIX_DEPLOYMENT.md](docs/REMIX_DEPLOYMENT.md).
+
+## MiniPay
+
+Loka defaults to USDm for MiniPay checkout. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).

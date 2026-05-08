@@ -31,7 +31,6 @@ import { celo, celoSepolia } from "viem/chains";
 import {
   LOKA_CHAIN,
   LOKA_PAY_LEDGER_ABI,
-  LOKA_STABLECOINS,
   approveLokaTokenPayment,
   assertAddress,
   payLokaNative,
@@ -40,6 +39,7 @@ import {
   type LokaInvoiceDraft,
   type LokaTokenSymbol,
 } from "@bamzzstudio/loka-sdk";
+import { LOKA_DEFAULT_PAYMENT_TOKEN } from "@/lib/celo";
 
 type AgentDraftPayload = Omit<LokaInvoiceDraft, "amountUnits"> & {
   amountUnits: string;
@@ -65,9 +65,9 @@ const configuredChainId = Number(process.env.NEXT_PUBLIC_CELO_CHAIN_ID ?? "42220
 const selectedChain = configuredChainId === LOKA_CHAIN.sepolia.id ? celoSepolia : celo;
 const chainMeta = configuredChainId === LOKA_CHAIN.sepolia.id ? LOKA_CHAIN.sepolia : LOKA_CHAIN.mainnet;
 const ledgerContract = process.env.NEXT_PUBLIC_LOKA_LEDGER_ADDRESS || "";
-const stableToken = process.env.NEXT_PUBLIC_LOKA_STABLE_TOKEN || LOKA_STABLECOINS.USDm.address;
-const stableSymbol = process.env.NEXT_PUBLIC_LOKA_STABLE_SYMBOL || LOKA_STABLECOINS.USDm.symbol;
-const stableDecimals = Number(process.env.NEXT_PUBLIC_LOKA_STABLE_DECIMALS || LOKA_STABLECOINS.USDm.decimals);
+const stableToken = process.env.NEXT_PUBLIC_LOKA_STABLE_TOKEN || LOKA_DEFAULT_PAYMENT_TOKEN.address;
+const stableSymbol = process.env.NEXT_PUBLIC_LOKA_STABLE_SYMBOL || LOKA_DEFAULT_PAYMENT_TOKEN.symbol;
+const stableDecimals = Number(process.env.NEXT_PUBLIC_LOKA_STABLE_DECIMALS || LOKA_DEFAULT_PAYMENT_TOKEN.decimals);
 
 const EXAMPLES = [
   { label: "Food stall", note: "Jollof bowl and drink", amount: "2.40", customer: "Walk-in buyer" },
