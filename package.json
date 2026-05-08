@@ -2,6 +2,14 @@
   "name": "localpay",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdekunleBamz/localpay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AdekunleBamz/localpay/issues"
+  },
+  "homepage": "https://github.com/AdekunleBamz/localpay#readme",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
