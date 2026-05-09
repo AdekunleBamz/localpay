@@ -34,3 +34,14 @@ Deployed Celo Mainnet ledger:
 ## MiniPay
 
 Loka auto-connects inside MiniPay, checks USDm/USDC/USDT balances, and selects a stablecoin that can cover the request. See [docs/MINIPAY_COMPATIBILITY.md](docs/MINIPAY_COMPATIBILITY.md).
+
+## Release Checks
+
+Before deploying to Vercel, run:
+
+```bash
+npm run lint
+npm run build
+```
+
+After deployment, open one merchant request in a normal browser and one inside MiniPay. Confirm the selected token, amount, and merchant address match before sending funds.
