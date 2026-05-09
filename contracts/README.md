@@ -10,3 +10,7 @@ Supported payment paths:
 The contract stores a receipt for each payment and emits `LokaPayment`, which includes the invoice ID, payer, merchant, token, amount, fee, and memo hash.
 
 Deployment guide: [docs/REMIX_DEPLOYMENT.md](../docs/REMIX_DEPLOYMENT.md)
+
+## Receipt Audit Notes
+
+Use the `invoiceId` and `memoHash` together when reconciling merchant payments. The token address distinguishes native CELO receipts from ERC-20 stablecoin receipts in downstream reports.
