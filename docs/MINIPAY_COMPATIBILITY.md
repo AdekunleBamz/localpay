@@ -27,6 +27,12 @@ The `.env.example` keeps the USDm override fields for deployments that want to c
 - MiniPay sessions do not call `wallet_switchEthereumChain`.
 - The contract records payments through `payToken(...)`.
 
+## Token Selection Checks
+
+- Confirm the requested amount is converted with the selected token decimals before payment.
+- Confirm the displayed token symbol matches the token address sent to `payToken(...)`.
+- Confirm MiniPay requests stay on Celo mainnet and do not prompt the user to switch chains.
+
 ## Web Wallet Flow
 
 Normal browser wallets can use:
