@@ -41,3 +41,9 @@ Current Celo Mainnet ledger:
 ```text
 0xDDBc0b6fB1fB0AAaE4321d69B3625ba4CaB2a952
 ```
+
+## Post-Deploy Smoke Check
+
+- Read `owner`, `treasury`, and `feeBps` from the deployed ledger in Remix.
+- Create a small test invoice and confirm the emitted receipt includes the expected invoice ID.
+- Confirm the app environment points to the same ledger address before sharing the production URL.
