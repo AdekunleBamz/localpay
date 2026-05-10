@@ -14,3 +14,5 @@ Deployment guide: [docs/REMIX_DEPLOYMENT.md](../docs/REMIX_DEPLOYMENT.md)
 ## Receipt Audit Notes
 
 Use the `invoiceId` and `memoHash` together when reconciling merchant payments. The token address distinguishes native CELO receipts from ERC-20 stablecoin receipts in downstream reports.
+
+See [docs/RECEIPT_AUDIT.md](../docs/RECEIPT_AUDIT.md) for the receipt field reference.
