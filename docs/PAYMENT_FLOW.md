@@ -6,3 +6,5 @@
 4. Stablecoin payments approve the ledger, then call `payToken(...)`.
 5. Native CELO payments call `payNative(...)`.
 6. The ledger emits `LokaPayment` and stores a receipt.
+
+The approval amount should match the exact invoice amount in token base units.
