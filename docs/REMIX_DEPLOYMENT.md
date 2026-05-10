@@ -18,6 +18,8 @@ Recommended values:
 - `treasury_`: your fee wallet, or `0x0000000000000000000000000000000000000000` to use `initialOwner_`.
 - `feeBps_`: `0` for no fee, `30` for 0.30%, or `50` for 0.50%.
 
+Keep `feeBps_` below the contract maximum of `500`, which represents 5%.
+
 ## App Env
 
 After deploying, set:
