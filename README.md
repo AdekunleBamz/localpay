@@ -43,6 +43,8 @@ Manual wallet checks are listed in [docs/QA_NOTES.md](docs/QA_NOTES.md).
 
 The payment sequence is outlined in [docs/PAYMENT_FLOW.md](docs/PAYMENT_FLOW.md).
 
+The invoice preparation endpoint is documented in [docs/INVOICE_API.md](docs/INVOICE_API.md).
+
 ## Release Checks
 
 Before deploying to Vercel, run:
