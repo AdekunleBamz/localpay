@@ -44,3 +44,7 @@ Normal browser wallets can use:
 - Native CELO through `payNative(...)`
 
 USDm remains the recommended production path for MiniPay.
+
+## Reviewer Notes
+
+Share the ledger address and expected stablecoin list with reviewers so they can compare the checkout screen against the deployment configuration.
