@@ -25,6 +25,7 @@ The `.env.example` keeps the USDm override fields for deployments that want to c
 - The connected account still comes from `eth_requestAccounts` after detection.
 - The app auto-connects the MiniPay wallet on launch.
 - The app checks USDm, USDC, and USDT balances and selects a stablecoin that can cover the request.
+- If no stablecoin can cover the request, the user can still review the request before changing the amount or funding the wallet.
 - MiniPay sessions do not call `wallet_switchEthereumChain`.
 - The contract records payments through `payToken(...)`.
 
