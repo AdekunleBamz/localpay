@@ -49,3 +49,7 @@ Current Celo Mainnet ledger:
 - Read `owner`, `treasury`, and `feeBps` from the deployed ledger in Remix.
 - Create a small test invoice and confirm the emitted receipt includes the expected invoice ID.
 - Confirm the app environment points to the same ledger address before sharing the production URL.
+
+## Deployment Record
+
+Record the ledger address, owner, treasury, fee basis points, and deployment transaction hash with the release notes.
