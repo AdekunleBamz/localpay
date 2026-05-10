@@ -41,6 +41,8 @@ Loka auto-connects inside MiniPay, checks USDm/USDC/USDT balances, and selects a
 
 Manual wallet checks are listed in [docs/QA_NOTES.md](docs/QA_NOTES.md).
 
+The payment sequence is outlined in [docs/PAYMENT_FLOW.md](docs/PAYMENT_FLOW.md).
+
 ## Release Checks
 
 Before deploying to Vercel, run:
