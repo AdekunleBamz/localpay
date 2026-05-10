@@ -55,3 +55,5 @@ npm run build
 After deployment, open one merchant request in a normal browser and one inside MiniPay. Confirm the selected token, amount, and merchant address match before sending funds.
 
 Use [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) as the full production readiness pass.
+
+Review [docs/SECURITY_NOTES.md](docs/SECURITY_NOTES.md) before changing ledger or treasury settings.
