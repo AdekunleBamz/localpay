@@ -13,3 +13,5 @@ Body fields:
 | `note` | No | Invoice memo. |
 | `country` | No | Market or region label. |
 | `dueLabel` | No | Due date label shown in the UI. |
+
+The response stringifies `draft.amountUnits` so clients can read the prepared base-unit amount without losing bigint precision.
