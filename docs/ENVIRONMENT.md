@@ -14,3 +14,7 @@ Loka uses public environment variables to select the ledger contract, Celo netwo
 ## Unit Notes
 
 Ledger payments store token amounts in base units. The UI converts human-readable invoice amounts using the selected token decimals before submitting payment.
+
+## Vercel Notes
+
+Update the ledger address in Vercel before promoting a new production build. Browser bundles keep the public variables from the deployment that built them.
