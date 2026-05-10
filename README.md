@@ -9,6 +9,8 @@ npm install
 npm run dev
 ```
 
+Use `.env.local` for local values. The committed `.env.example` only documents the public variables the app expects.
+
 ## Environment
 
 Copy `.env.example` to `.env.local` and add the deployed ledger address after Remix deployment.
