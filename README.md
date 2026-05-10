@@ -23,6 +23,8 @@ NEXT_PUBLIC_LOKA_STABLE_SYMBOL=USDm
 NEXT_PUBLIC_LOKA_STABLE_DECIMALS=18
 ```
 
+See [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) for the purpose of each public variable.
+
 ## Contract
 
 See [docs/REMIX_DEPLOYMENT.md](docs/REMIX_DEPLOYMENT.md).
