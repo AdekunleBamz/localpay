@@ -14,3 +14,4 @@
 - Confirm the wallet auto-connects.
 - Confirm the app checks USDm, USDC, and USDT balances.
 - Confirm MiniPay does not receive a chain switch prompt.
+- Save the checkout link used for each MiniPay smoke test.
