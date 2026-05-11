@@ -1,0 +1,5 @@
+# Merchant Handoff Check
+
+- Confirm merchant handoff notes include invoice id and settlement address.
+- Include explorer links instead of copied wallet screenshots when possible.
+- Keep internal fee details separate from customer-facing copy.
