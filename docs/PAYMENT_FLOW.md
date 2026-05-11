@@ -8,3 +8,5 @@
 6. The ledger emits `LokaPayment` and stores a receipt.
 
 The approval amount should match the exact invoice amount in token base units.
+
+Record the approval hash beside the final payment hash when a token allowance is needed.
