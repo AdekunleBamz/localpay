@@ -8,3 +8,4 @@
 - Confirm the displayed merchant address matches the receiving wallet.
 - Confirm the selected token and amount match the request before payment.
 - Confirm Celoscan shows a `LokaPayment` event after a test payment.
+- Attach the checkout URL and receipt hash to the release notes.
