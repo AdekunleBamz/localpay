@@ -18,3 +18,5 @@ Ledger payments store token amounts in base units. The UI converts human-readabl
 ## Vercel Notes
 
 Update the ledger address in Vercel before promoting a new production build. Browser bundles keep the public variables from the deployment that built them.
+
+Record the Vercel environment and reviewer when ledger or stablecoin variables change.
