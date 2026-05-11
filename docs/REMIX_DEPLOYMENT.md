@@ -53,3 +53,5 @@ Current Celo Mainnet ledger:
 ## Deployment Record
 
 Record the ledger address, owner, treasury, fee basis points, and deployment transaction hash with the release notes.
+
+Include the Remix compiler version beside the ledger deployment hash.
