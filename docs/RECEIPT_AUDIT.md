@@ -13,3 +13,5 @@ Use ledger receipts to reconcile merchant payments.
 | `memoHash` | Hash of the offchain invoice note or memo. |
 
 The contract also tracks `invoicePaymentCount`, which helps identify repeated or partial payment attempts for the same invoice id.
+
+Include the merchant wallet and payer wallet when filing a receipt audit note.
