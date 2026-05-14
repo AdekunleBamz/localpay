@@ -1,6 +1,7 @@
 # Release Checklist
 
 - Run `npm run lint`.
+- Run `npm run typecheck`.
 - Run `npm run build`.
 - Confirm `NEXT_PUBLIC_LOKA_LEDGER_ADDRESS` matches the intended ledger.
 - Prepare a small invoice in a normal browser wallet.
