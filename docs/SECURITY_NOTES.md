@@ -6,3 +6,4 @@
 - Treat merchant addresses as payment-critical data.
 - Recheck fee basis points after every ledger redeploy.
 - Confirm treasury wallet ownership before promoting a production payment release.
+- Do not include merchant wallet addresses or invoice amounts in client-facing error messages.
