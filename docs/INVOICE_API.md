@@ -16,4 +16,6 @@ Body fields:
 
 The response stringifies `draft.amountUnits` so clients can read the prepared base-unit amount without losing bigint precision.
 
+Token base units depend on the selected token's decimal precision: 18 for CELO and USDm, 6 for USDC and USDT.
+
 Keep one accepted request and response pair with release evidence after invoice payload changes.
