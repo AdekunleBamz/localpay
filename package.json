@@ -14,7 +14,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@bamzzstudio/loka-sdk": "https://github.com/AdekunleBamz/localpay-sdk/archive/a685318b66740bd634b3f3256b57bf4218084047.tar.gz",
