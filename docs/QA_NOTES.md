@@ -15,3 +15,8 @@
 - Confirm the app checks USDm, USDC, and USDT balances.
 - Confirm MiniPay does not receive a chain switch prompt.
 - Save the checkout link used for each MiniPay smoke test.
+
+## Pre-Release
+
+- Run `npm run typecheck` and resolve any errors before sharing a preview URL.
+- Confirm `.env.example` still lists every required public variable after any config change.
