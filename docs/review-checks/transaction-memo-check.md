@@ -4,3 +4,4 @@
 - Compare the memo with the receipt text.
 - Avoid placing private customer details in transaction-facing copy.
 - Save the approved memo text with release evidence.
+- Confirm memo text remains readable after URL sharing.
