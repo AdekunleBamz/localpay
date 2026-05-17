@@ -4,3 +4,4 @@
 - Confirm the symbol remains visible on narrow screens.
 - Record any symbol mismatch before release.
 - Compare the symbol against both checkout and wallet confirmation surfaces.
+- Check that fallback symbols do not hide the selected token address.
