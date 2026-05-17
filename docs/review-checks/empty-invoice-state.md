@@ -4,3 +4,4 @@
 - Confirm the empty state gives a useful next action without implying payment failure.
 - Review the state on mobile width before release.
 - Save a screenshot if the empty state copy changes.
+- Confirm empty invoice copy does not expose a stale merchant address.
