@@ -3,6 +3,7 @@
 ## Browser Wallet
 
 - Connect a Celo-compatible wallet.
+- Refresh once after connecting and confirm the invoice still shows the same payer context.
 - Prepare a request using each visible payment rail.
 - Confirm the QR code regenerates after amount or token changes.
 - Confirm the checkout link preserves merchant, amount, token, note, and customer values.
