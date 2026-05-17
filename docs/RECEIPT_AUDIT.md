@@ -15,3 +15,5 @@ Use ledger receipts to reconcile merchant payments.
 The contract also tracks `invoicePaymentCount`, which helps identify repeated or partial payment attempts for the same invoice id.
 
 Include the merchant wallet and payer wallet when filing a receipt audit note.
+
+Attach the public explorer link whenever a receipt hash is copied into an audit note.
