@@ -5,7 +5,7 @@ Loka is a MiniPay-first merchant payment request app for Celo. Merchants prepare
 ## Local Development
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
