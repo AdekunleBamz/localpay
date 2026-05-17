@@ -19,3 +19,5 @@ The response stringifies `draft.amountUnits` so clients can read the prepared ba
 Token base units depend on the selected token's decimal precision: 18 for CELO and USDm, 6 for USDC and USDT.
 
 Keep one accepted request and response pair with release evidence after invoice payload changes.
+
+Record the token decimals used for that pair so amount conversions can be checked later.
