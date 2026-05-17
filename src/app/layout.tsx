@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Loka",
+  applicationName: "Loka",
   description: "MiniPay-first merchant payment requests and Celo receipts.",
   icons: {
     icon: "/loka-logo.svg",
