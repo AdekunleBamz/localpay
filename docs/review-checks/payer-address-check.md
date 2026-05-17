@@ -4,3 +4,4 @@
 - Record the wallet label and chain used during review.
 - Note any mismatch before approving payment.
 - Compare the payer address on checkout, wallet, and receipt.
+- Confirm the payer address remains stable after a page refresh.
