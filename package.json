@@ -2,6 +2,7 @@
   "name": "localpay",
   "version": "0.1.0",
   "private": true,
+  "description": "MiniPay-first Celo merchant payment request app with onchain receipts.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AdekunleBamz/localpay.git"
@@ -10,6 +11,13 @@
     "url": "https://github.com/AdekunleBamz/localpay/issues"
   },
   "homepage": "https://github.com/AdekunleBamz/localpay#readme",
+  "keywords": [
+    "localpay",
+    "celo",
+    "minipay",
+    "payments",
+    "receipts"
+  ],
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
