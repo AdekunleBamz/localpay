@@ -1,4 +1,4 @@
 # Receipt Copy Whitespace Check
 
-Inspect receipt merchant names, memos, and transaction references for extra whitespace.
-Confirm downloaded and printed receipts match the on-screen version.
+Copy receipt details from the summary panel.
+Confirm pasted text has clean spacing and no hidden layout characters.
